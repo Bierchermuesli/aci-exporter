@@ -1,4 +1,7 @@
-FROM golang:1.27-alpine3.24 AS builder
+# Base images pinned by digest, updated by Dependabot
+FROM golang:1.27-alpine3.24@sha256:d200d2dd76b03a99b52651fd1325aff7dcd35422c35c01bac56571b0507f3deb AS builder
+
+ARG VERSION=undefined
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
@@ -17,10 +20,10 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o aci-exporter  *.go
+RUN go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o aci-exporter .
 
 
-FROM alpine:3.24
+FROM alpine:3.24@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
 
 # Move to /dist directory as the place for resulting binary folder
 WORKDIR /dist
